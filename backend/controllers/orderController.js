@@ -1,6 +1,13 @@
-const { executeQuery, executeTransaction } = require('../config/database');
+const { executeQuery, getPool } = require('../config/database');
 const { asyncHandler } = require('../middleware/errorHandler');
 const crypto = require('crypto');
+const Razorpay = require('razorpay');
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 // Generate unique order number
 const generateOrderNumber = () => {
@@ -14,6 +21,14 @@ const createOrder = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { shippingAddress, billingAddress, paymentMethod = 'cod', orderNotes } = req.body;
 
+  // Validate required fields
+  if (!shippingAddress) {
+    return res.status(400).json({
+      success: false,
+      message: 'Shipping address is required',
+    });
+  }
+
   // Get cart items
   const cartQuery = `
     SELECT 
@@ -24,7 +39,9 @@ const createOrder = asyncHandler(async (req, res) => {
       p.name as product_name,
       p.sku as product_sku,
       p.price,
-      pv.price_modifier
+      p.stock_quantity as product_stock,
+      pv.price_modifier,
+      pv.stock_quantity as variant_stock
     FROM cart c
     JOIN products p ON c.product_id = p.id
     LEFT JOIN product_variants pv ON c.variant_id = pv.id
@@ -40,6 +57,17 @@ const createOrder = asyncHandler(async (req, res) => {
     });
   }
 
+  // Validate stock availability
+  for (const item of cartItems) {
+    const availableStock = item.variant_id ? item.variant_stock : item.product_stock;
+    if (availableStock < item.quantity) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient stock for ${item.product_name}. Only ${availableStock} available.`,
+      });
+    }
+  }
+
   // Calculate totals
   let subtotal = 0;
   cartItems.forEach(item => {
@@ -51,62 +79,94 @@ const createOrder = asyncHandler(async (req, res) => {
   const shippingAmount = 0; // Free shipping
   const totalAmount = subtotal + taxAmount + shippingAmount;
 
-  // Create address records
-  let shippingAddressId = null;
-  let billingAddressId = null;
+  // Use manual transaction with connection
+  const pool = getPool();
+  const connection = await pool.getConnection();
 
-  await executeTransaction(async (connection) => {
+  try {
+    await connection.beginTransaction();
+
     // Insert shipping address
-    if (shippingAddress) {
-      const shippingResult = await connection.query(
-        `INSERT INTO addresses (user_id, first_name, last_name, email, phone, address, city, state, zip_code, country, address_type)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'shipping')`,
-        [
-          userId,
-          shippingAddress.firstName,
-          shippingAddress.lastName,
-          shippingAddress.email,
-          shippingAddress.phone,
-          shippingAddress.address,
-          shippingAddress.city,
-          shippingAddress.state,
-          shippingAddress.zipCode,
-          shippingAddress.country || 'India',
-        ]
-      );
-      shippingAddressId = shippingResult[0].insertId;
-    }
+    let shippingAddressId = null;
+    const [shippingResult] = await connection.execute(
+      `INSERT INTO addresses (user_id, first_name, last_name, email, phone, address, city, state, zip_code, country, type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'shipping')`,
+      [
+        userId,
+        shippingAddress.firstName,
+        shippingAddress.lastName,
+        shippingAddress.email,
+        shippingAddress.phone,
+        shippingAddress.address,
+        shippingAddress.city,
+        shippingAddress.state,
+        shippingAddress.zipCode,
+        shippingAddress.country || 'India',
+      ]
+    );
+    shippingAddressId = shippingResult.insertId;
 
-    // Insert billing address
-    if (billingAddress) {
-      const billingResult = await connection.query(
-        `INSERT INTO addresses (user_id, first_name, last_name, email, phone, address, city, state, zip_code, country, type)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'billing')`,
-        [
-          userId,
-          billingAddress.firstName || shippingAddress.firstName,
-          billingAddress.lastName || shippingAddress.lastName,
-          billingAddress.email || shippingAddress.email,
-          billingAddress.phone || shippingAddress.phone,
-          billingAddress.address || shippingAddress.address,
-          billingAddress.city || shippingAddress.city,
-          billingAddress.state || shippingAddress.state,
-          billingAddress.zipCode || shippingAddress.zipCode,
-          billingAddress.country || shippingAddress.country || 'India',
-        ]
-      );
-      billingAddressId = billingResult[0].insertId;
-    }
+    // Insert billing address (use shipping if not provided)
+    let billingAddressId = null;
+    const billingData = billingAddress || shippingAddress;
+    const [billingResult] = await connection.execute(
+      `INSERT INTO addresses (user_id, first_name, last_name, email, phone, address, city, state, zip_code, country, type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'billing')`,
+      [
+        userId,
+        billingData.firstName || shippingAddress.firstName,
+        billingData.lastName || shippingAddress.lastName,
+        billingData.email || shippingAddress.email,
+        billingData.phone || shippingAddress.phone,
+        billingData.address || shippingAddress.address,
+        billingData.city || shippingAddress.city,
+        billingData.state || shippingAddress.state,
+        billingData.zipCode || shippingAddress.zipCode,
+        billingData.country || shippingAddress.country || 'India',
+      ]
+    );
+    billingAddressId = billingResult.insertId;
 
     // Create order
     const orderNumber = generateOrderNumber();
-    const orderResult = await connection.query(
-      `INSERT INTO orders (order_number, user_id, status, payment_status, payment_method, subtotal, tax_amount, shipping_amount, total_amount, shipping_address_id, billing_address_id, order_notes)
-       VALUES (?, ?, 'pending', 'pending', ?, ?, ?, ?, ?, ?, ?, ?)`,
+    let razorpayOrderId = null;
+
+    if (paymentMethod === 'razorpay') {
+      // Check if we have valid razorpay keys - ensure we trim to avoid whitespace issues
+      const keyId = (process.env.RAZORPAY_KEY_ID || '').trim();
+      const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+
+      const hasValidKeys = keyId &&
+        keyId !== 'rzp_test_your_key_id' &&
+        keySecret !== 'your_razorpay_secret' &&
+        keyId.startsWith('rzp_');
+
+      if (hasValidKeys) {
+        try {
+          const razorpayOrder = await razorpay.orders.create({
+            amount: Math.round(totalAmount * 100), // amount in paise
+            currency: 'INR',
+            receipt: orderNumber,
+          });
+          razorpayOrderId = razorpayOrder.id;
+        } catch (err) {
+          console.error('Razorpay order creation failed:', err.message);
+          throw new Error('Failed to initiate payment. Please try again.');
+        }
+      } else {
+        console.log('⚠️ Using dummy Razorpay ID because keys are not configured');
+        razorpayOrderId = 'dummy_razorpay_' + Date.now();
+      }
+    }
+
+    const [orderResult] = await connection.execute(
+      `INSERT INTO orders (order_number, user_id, status, payment_status, payment_method, payment_id, subtotal, tax_amount, shipping_amount, total_amount, shipping_address_id, billing_address_id, order_notes)
+       VALUES (?, ?, 'pending', 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         orderNumber,
         userId,
         paymentMethod,
+        razorpayOrderId,
         subtotal,
         taxAmount,
         shippingAmount,
@@ -117,14 +177,14 @@ const createOrder = asyncHandler(async (req, res) => {
       ]
     );
 
-    const orderId = orderResult[0].insertId;
+    const orderId = orderResult.insertId;
 
-    // Create order items
+    // Create order items and update stock
     for (const item of cartItems) {
       const itemPrice = parseFloat(item.price) + (parseFloat(item.price_modifier) || 0);
       const totalPrice = itemPrice * item.quantity;
 
-      await connection.query(
+      await connection.execute(
         `INSERT INTO order_items (order_id, product_id, variant_id, product_name, product_sku, quantity, unit_price, total_price)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -141,12 +201,12 @@ const createOrder = asyncHandler(async (req, res) => {
 
       // Update product stock
       if (item.variant_id) {
-        await connection.query(
+        await connection.execute(
           'UPDATE product_variants SET stock_quantity = stock_quantity - ? WHERE id = ?',
           [item.quantity, item.variant_id]
         );
       } else {
-        await connection.query(
+        await connection.execute(
           'UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?',
           [item.quantity, item.product_id]
         );
@@ -154,7 +214,10 @@ const createOrder = asyncHandler(async (req, res) => {
     }
 
     // Clear cart
-    await connection.query('DELETE FROM cart WHERE user_id = ?', [userId]);
+    await connection.execute('DELETE FROM cart WHERE user_id = ?', [userId]);
+
+    // Commit transaction
+    await connection.commit();
 
     // Get created order with details
     const orderQuery = `
@@ -187,24 +250,71 @@ const createOrder = asyncHandler(async (req, res) => {
 
     const { rows: itemsRows } = await executeQuery(itemsQuery, [orderId]);
 
+    const orderData = {
+      ...order,
+      shipping_address: {
+        first_name: order.shipping_first_name,
+        last_name: order.shipping_last_name,
+        address: order.shipping_address,
+        city: order.shipping_city,
+        state: order.shipping_state,
+        zip_code: order.shipping_zip_code,
+        country: order.shipping_country,
+        phone: order.shipping_phone,
+      },
+      order_items: itemsRows,
+    };
+
+    // Send order confirmation email
+    try {
+      const { sendOrderConfirmationEmail } = require('../utils/email');
+      const userEmail = req.user.email || shippingAddress.email;
+
+      if (userEmail) {
+        await sendOrderConfirmationEmail(userEmail, {
+          orderNumber: order.order_number,
+          orderDate: new Date(order.created_at).toLocaleDateString('en-IN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          items: itemsRows.map(item => ({
+            product_name: item.product_name,
+            product_sku: item.product_sku,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            total_price: item.total_price,
+          })),
+          subtotal: order.subtotal,
+          taxAmount: order.tax_amount,
+          shippingAmount: order.shipping_amount,
+          totalAmount: order.total_amount,
+          shippingAddress: orderData.shipping_address,
+          paymentMethod: order.payment_method,
+        });
+        console.log('✅ Order confirmation email sent successfully');
+      }
+    } catch (emailError) {
+      console.error('⚠️ Failed to send order confirmation email:', emailError.message);
+      // Don't fail the order creation if email fails
+    }
+
     res.json({
       success: true,
-      data: {
-        ...order,
-        shipping_address: {
-          first_name: order.shipping_first_name,
-          last_name: order.shipping_last_name,
-          address: order.shipping_address,
-          city: order.shipping_city,
-          state: order.shipping_state,
-          zip_code: order.shipping_zip_code,
-          country: order.shipping_country,
-          phone: order.shipping_phone,
-        },
-        order_items: itemsRows,
-      },
+      message: 'Order placed successfully',
+      data: orderData,
     });
-  });
+  } catch (error) {
+    // Rollback transaction on error
+    await connection.rollback();
+    console.error('Order creation error:', error);
+    throw error;
+  } finally {
+    // Release connection
+    connection.release();
+  }
 });
 
 // @desc    Get user orders
@@ -362,10 +472,110 @@ const cancelOrder = asyncHandler(async (req, res) => {
     [reason || 'Cancelled by user', orderId]
   );
 
+  // Restore stock for cancelled order items
+  try {
+    const itemsQuery = 'SELECT product_id, variant_id, quantity FROM order_items WHERE order_id = ?';
+    const { rows: items } = await executeQuery(itemsQuery, [orderId]);
+
+    for (const item of items) {
+      if (item.variant_id) {
+        await executeQuery(
+          'UPDATE product_variants SET stock_quantity = stock_quantity + ? WHERE id = ?',
+          [item.quantity, item.variant_id]
+        );
+      } else {
+        await executeQuery(
+          'UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?',
+          [item.quantity, item.product_id]
+        );
+      }
+    }
+  } catch (stockError) {
+    console.error('Failed to restore stock for cancelled order:', stockError);
+    // Don't fail the response if stock restoration fails, but log it
+  }
+
   res.json({
     success: true,
     message: 'Order cancelled successfully',
   });
+});
+
+// @desc    Download order receipt as PDF
+// @route   GET /api/orders/:id/receipt
+// @access  Private
+const downloadOrderReceipt = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const orderId = req.params.id;
+
+  // Get order with all details
+  const orderQuery = `
+    SELECT 
+      o.*,
+      sa.first_name as shipping_first_name,
+      sa.last_name as shipping_last_name,
+      sa.address as shipping_address,
+      sa.city as shipping_city,
+      sa.state as shipping_state,
+      COALESCE(sa.zip_code, sa.postal_code) as shipping_zip_code,
+      sa.country as shipping_country,
+      sa.phone as shipping_phone,
+      u.email as user_email
+    FROM orders o
+    LEFT JOIN addresses sa ON o.shipping_address_id = sa.id
+    LEFT JOIN users u ON o.user_id = u.id
+    WHERE o.id = ? AND o.user_id = ?
+  `;
+
+  const { rows: orderRows } = await executeQuery(orderQuery, [orderId, userId]);
+
+  if (orderRows.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: 'Order not found',
+    });
+  }
+
+  const order = orderRows[0];
+
+  // Get order items
+  const itemsQuery = `
+    SELECT 
+      oi.*,
+      (SELECT image_url FROM product_images WHERE product_id = oi.product_id AND is_primary = 1 LIMIT 1) as product_image
+    FROM order_items oi
+    WHERE oi.order_id = ?
+  `;
+
+  const { rows: itemsRows } = await executeQuery(itemsQuery, [orderId]);
+
+  // Prepare order data for PDF
+  const orderData = {
+    ...order,
+    shipping_address: {
+      first_name: order.shipping_first_name,
+      last_name: order.shipping_last_name,
+      address: order.shipping_address,
+      city: order.shipping_city,
+      state: order.shipping_state,
+      zip_code: order.shipping_zip_code,
+      country: order.shipping_country,
+      phone: order.shipping_phone,
+    },
+    order_items: itemsRows,
+  };
+
+  // Generate PDF
+  const { generateOrderReceipt } = require('../utils/pdfGenerator');
+  const pdfBuffer = await generateOrderReceipt(orderData);
+
+  // Set response headers
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="Order-${order.order_number}-Receipt.pdf"`);
+  res.setHeader('Content-Length', pdfBuffer.length);
+
+  // Send PDF
+  res.send(pdfBuffer);
 });
 
 module.exports = {
@@ -373,5 +583,5 @@ module.exports = {
   getOrders,
   getOrder,
   cancelOrder,
+  downloadOrderReceipt,
 };
-

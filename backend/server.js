@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 // Import database connection
@@ -16,9 +17,16 @@ const cartRoutes = require('./routes/cart');
 const wishlistRoutes = require('./routes/wishlist');
 const orderRoutes = require('./routes/order');
 const adminRoutes = require('./routes/admin');
+const sellerRoutes = require('./routes/seller');
+const sliderRoutes = require('./routes/slider');
+const categoryRoutes = require('./routes/category');
+const brandRoutes = require('./routes/brand');
 
 // Import middleware
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const { protect, adminOnly } = require('./middleware/auth');
+const fileUpload = require('express-fileupload');
+const { uploadImage } = require('./controllers/uploadController');
 
 const app = express();
 
@@ -52,7 +60,7 @@ app.use('/api/', limiter);
 // API rate limiting for sensitive endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 auth requests per windowMs
+  max: 50, // limit each IP to 50 auth requests per windowMs
   message: 'Too many authentication attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -71,6 +79,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Serve static files
+const uploadsDir = path.join(__dirname, 'public/uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Health check endpoint
@@ -89,7 +101,13 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
+// Register upload route on app so POST /api/admin/upload is matched (router was not matching)
+app.post('/api/admin/upload', protect, adminOnly, fileUpload({ createParentPath: true, limits: { fileSize: 5 * 1024 * 1024 } }), uploadImage);
 app.use('/api/admin', adminRoutes);
+app.use('/api/seller', sellerRoutes);
+app.use('/api/sliders', sliderRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/brands', brandRoutes);
 
 // Welcome route
 app.get('/', (req, res) => {

@@ -1,0 +1,11 @@
+Error: Database not connected. Call connectDB() first.
+    at getPool (D:\sem-6\projects\MAjor\backend\config\database.js:69:11)
+    at executeQuery (D:\sem-6\projects\MAjor\backend\config\database.js:77:18)
+    at seedProducts (D:\sem-6\projects\MAjor\backend\seed_seller.js:6:27)
+    at Object.<anonymous> (D:\sem-6\projects\MAjor\backend\seed_seller.js:115:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)

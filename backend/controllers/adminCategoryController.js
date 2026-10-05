@@ -26,7 +26,7 @@ const getAdminCategories = asyncHandler(async (req, res) => {
 // @route   POST /api/admin/categories
 // @access  Private/Admin
 const createCategory = asyncHandler(async (req, res) => {
-  const { name, description, slug, image, is_active, sort_order } = req.body;
+  const { name, description, slug, image, is_active, sort_order, custom_link } = req.body;
 
   if (!name || !slug) {
     return res.status(400).json({
@@ -45,8 +45,8 @@ const createCategory = asyncHandler(async (req, res) => {
   }
 
   const insertQuery = `
-    INSERT INTO categories (name, description, slug, image, is_active, sort_order)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO categories (name, description, slug, image, is_active, sort_order, custom_link)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   const result = await executeQuery(insertQuery, [
@@ -56,9 +56,10 @@ const createCategory = asyncHandler(async (req, res) => {
     image || null,
     is_active !== false ? 1 : 0,
     sort_order || 0,
+    custom_link && String(custom_link).trim() ? String(custom_link).trim() : null,
   ]);
 
-  const categoryId = result.rows.insertId;
+  const categoryId = result.insertId;
 
   const categoryResult = await executeQuery('SELECT * FROM categories WHERE id = ?', [categoryId]);
 
@@ -74,7 +75,7 @@ const createCategory = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateCategory = asyncHandler(async (req, res) => {
   const categoryId = req.params.id;
-  const { name, description, slug, image, is_active, sort_order } = req.body;
+  const { name, description, slug, image, is_active, sort_order, custom_link } = req.body;
 
   // Check if category exists
   const categoryCheck = await executeQuery('SELECT id FROM categories WHERE id = ?', [categoryId]);
@@ -123,6 +124,10 @@ const updateCategory = asyncHandler(async (req, res) => {
   if (sort_order !== undefined) {
     updateFields.push('sort_order = ?');
     updateValues.push(parseInt(sort_order));
+  }
+  if (custom_link !== undefined) {
+    updateFields.push('custom_link = ?');
+    updateValues.push(custom_link && String(custom_link).trim() ? String(custom_link).trim() : null);
   }
 
   if (updateFields.length === 0) {

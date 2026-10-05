@@ -76,8 +76,17 @@ const executeQuery = async (query, params = []) => {
   try {
     const pool = getPool();
     // pool.execute() automatically handles connection acquisition and release
-    const [rows, fields] = await pool.execute(query, params);
-    return { rows, fields };
+    const [result, fields] = await pool.execute(query, params);
+
+    // For INSERT queries, result contains insertId, affectedRows, etc.
+    // For SELECT queries, result is an array of rows
+    if (result.insertId !== undefined) {
+      // This is an INSERT/UPDATE/DELETE result
+      return { rows: result, fields, insertId: result.insertId };
+    } else {
+      // This is a SELECT result
+      return { rows: result, fields };
+    }
   } catch (error) {
     // Handle connection errors
     if (error.code === 'PROTOCOL_CONNECTION_LOST' || error.code === 'ECONNRESET') {

@@ -1,0 +1,380 @@
+================================================================================
+                    PREMIUM WATCH STORE - COMPLETE PROJECT DETAILS
+                    (My Clock - E-commerce Website)
+================================================================================
+Generated: Project documentation - Basic se lekar pura flow aur saari functionality
+================================================================================
+
+
+--------------------------------------------------------------------------------
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+- Yeh ek full e-commerce website hai jisme watches (ghadiyan) bechi jaati hain.
+- Project name: "My Clock" / "Premium Watch Store"
+- Structure: Frontend (React) + Backend (Node.js/Express) + MySQL database
+- Users: Customer (guest/login), Admin, Seller - teen tarah ke roles hain.
+
+
+--------------------------------------------------------------------------------
+2. TECH STACK
+--------------------------------------------------------------------------------
+
+FRONTEND (README/frontend):
+  - React 19
+  - React Router DOM 7
+  - Redux Toolkit (state management)
+  - Axios (API calls)
+  - Tailwind CSS (styling)
+  - Heroicons, MUI icons, Lucide React
+  - React Hot Toast (notifications)
+  - Swiper (carousels)
+  - React Hook Form
+
+BACKEND (README/backend):
+  - Node.js
+  - Express 5
+  - MySQL2 (database)
+  - JWT (auth tokens)
+  - bcryptjs (password hashing)
+  - express-fileupload, multer (file upload)
+  - express-validator
+  - Helmet, CORS, Morgan
+  - Nodemailer (emails - OTP, password reset)
+  - Razorpay, Stripe (payment - dependencies present)
+  - PDFKit (order receipt PDF)
+
+
+--------------------------------------------------------------------------------
+3. PROJECT FOLDER STRUCTURE
+--------------------------------------------------------------------------------
+
+README/
+├── frontend/                 # React app
+│   ├── public/
+│   └── src/
+│       ├── components/       # Reusable UI
+│       │   ├── Admin/        # AdminSidebar, AdminLayout, ImageInput
+│       │   ├── Auth/         # LoginForm, RegisterForm, OTPVerification, ProtectedRoute, AdminRoute, SellerRoute
+│       │   ├── Cart/         # CartDrawer
+│       │   ├── Home/         # Hero, CategoryCarousel, NewArrivals, FeaturedBrands, etc.
+│       │   ├── Layout/       # Layout, Header, Footer, NavigationMenu, FloatingButtons
+│       │   ├── Order/        # OrderTracker
+│       │   ├── Product/      # ProductCard
+│       │   ├── Search/       # SearchModal
+│       │   └── Seller/       # SellerSidebar, SellerLayout
+│       ├── pages/            # Route pages
+│       ├── redux/            # store, slices (auth, cart, products, orders, admin, etc.)
+│       ├── utils/
+│       ├── App.js
+│       └── index.js
+│
+├── backend/
+│   ├── config/              # database.js
+│   ├── controllers/         # auth, product, cart, order, admin*, slider, upload, etc.
+│   ├── middleware/           # auth (protect, adminOnly), errorHandler
+│   ├── routes/              # auth, product, cart, order, admin, slider, category, brand
+│   ├── utils/               # email, jwt
+│   ├── public/uploads/      # Uploaded images
+│   ├── scripts/             # createAdmin.js
+│   └── server.js
+│
+└── alldetails.txt           # Yeh file
+
+
+--------------------------------------------------------------------------------
+4. USER ROLES & ACCESS
+--------------------------------------------------------------------------------
+
+- CUSTOMER (Guest / Logged-in):
+  - Home, Products, Product Detail, Cart, Wishlist, Search, Boutiques
+  - Login/Register (email + OTP verification)
+  - Checkout, Orders, Profile, Rewards - sirf login ke baad
+
+- ADMIN (role: admin / super_admin):
+  - /admin/* - Dashboard, Products, Orders, Users, Categories, Brands, Sliders
+  - Image upload (URL ya file), sab CRUD
+
+- SELLER:
+  - /seller/* - Seller Dashboard, Seller Products, Orders, Analytics
+
+
+--------------------------------------------------------------------------------
+5. FRONTEND ROUTES (Puri website ke URLs)
+--------------------------------------------------------------------------------
+
+PUBLIC (bina login):
+  /                     HomePage
+  /products             ProductListPage (saari products)
+  /products/:id         ProductDetailPage
+  /category/:slug       ProductListPage (category filter)
+  /search               ProductListPage (search)
+  /cart                 CartPage
+  /wishlist             WishlistPage
+  /boutiques            BoutiquesPage
+  /login                LoginPage
+  /register             RegisterPage
+
+PROTECTED (login required):
+  /checkout             CheckoutPage
+  /profile              ProfilePage
+  /orders               OrderHistoryPage
+  /orders/:id           OrderDetailPage
+  /rewards              RewardsPage
+
+ADMIN (admin role):
+  /admin                AdminDashboard
+  /admin/products       AdminProducts (CRUD, image URL/upload)
+  /admin/orders         AdminOrders
+  /admin/users          AdminUsers
+  /admin/categories     AdminCategories (CRUD, image URL/upload)
+  /admin/brands         AdminBrands (CRUD, logo URL/upload)
+  /admin/sliders        AdminSliders (CRUD, order drag-drop, image URL/upload)
+
+SELLER:
+  /seller               SellerDashboard
+  /seller/products      SellerProducts
+  /seller/orders        SellerProducts
+  /seller/analytics     SellerDashboard
+
+OTHER:
+  * (any other path)     NotFoundPage (404)
+
+
+--------------------------------------------------------------------------------
+6. BACKEND API ENDPOINTS
+--------------------------------------------------------------------------------
+
+BASE URL: /api
+
+AUTH (/api/auth):
+  POST   /register           Register (email verification OTP bhejta hai)
+  POST   /verify-email       OTP verify karke email verify
+  POST   /resend-otp         OTP dubara bhejo
+  POST   /login             Email + password login
+  POST   /send-login-otp     Login ke liye OTP bhejo
+  POST   /login-with-otp    OTP se login
+  POST   /forgotpassword    Forgot password
+  PUT    /resetpassword/:token  Password reset
+  POST   /refresh           Refresh token
+  --- Protected ---
+  POST   /logout            Logout
+  GET    /me                Current user
+  PUT    /updatedetails     Profile update
+  PUT    /updatepassword    Password change
+
+PRODUCTS (/api/products):
+  GET    /                  List products (filters, pagination)
+  GET    /featured          Featured products (homepage)
+  GET    /:id               Single product detail
+
+CATEGORIES (/api/categories):
+  GET    /                  List categories (public)
+
+BRANDS (/api/brands):
+  GET    /                  List brands (public)
+
+CART (/api/cart) - Protected:
+  GET    /                  Get cart
+  POST   /                  Add to cart
+  PUT    /:id               Update quantity
+  DELETE /:id               Remove item
+
+WISHLIST (/api/wishlist) - Protected:
+  GET    /                  Get wishlist
+  POST   /                  Add to wishlist
+  DELETE /:productId        Remove from wishlist
+
+ORDERS (/api/orders) - Protected:
+  GET    /                  User ke saare orders
+  POST   /                  Create order (cart se, shipping/billing, payment method)
+  GET    /:id               Single order detail
+  PUT    /:id/cancel        Order cancel
+  GET    /:id/receipt       Order receipt PDF download
+
+SLIDERS (public):
+  GET    /sliders/active     Homepage ke liye active sliders
+
+ADMIN (/api/admin) - Protect + Admin only:
+  POST   /upload            Image upload (multipart, field name "image") -> URL return
+  GET    /dashboard         Dashboard stats
+  GET    /users             List users
+  GET    /users/:id         User detail
+  PUT    /users/:id         Update user
+  DELETE /users/:id         Delete user
+  GET    /products         Admin products (search, filter, pagination)
+  POST   /products         Create product (images array)
+  PUT    /products/:id      Update product (images array bhi)
+  DELETE /products/:id      Delete product
+  GET    /categories       List categories (with product count)
+  POST   /categories       Create category
+  PUT    /categories/:id    Update category
+  DELETE /categories/:id   Delete category
+  GET    /brands           List brands
+  POST   /brands           Create brand
+  PUT    /brands/:id       Update brand
+  DELETE /brands/:id       Delete brand
+  GET    /orders           List orders (admin)
+  PUT    /orders/:id/status Update order status (tracking)
+  GET    /sliders          List sliders
+  GET    /sliders/:id      Slider detail
+  POST   /sliders          Create slider
+  PUT    /sliders/:id      Update slider
+  DELETE /sliders/:id     Delete slider
+  PUT    /sliders/order    Update slider display order (drag-drop)
+
+
+--------------------------------------------------------------------------------
+7. WEBSITE FUNCTIONALITY (Feature-by-feature)
+--------------------------------------------------------------------------------
+
+----- 7.1 AUTHENTICATION -----
+  - Register: Name, email, password, phone, DOB, gender. Password strong (uppercase, lowercase, number, special char). Email pe OTP bhejta hai.
+  - Verify Email: 6-digit OTP enter karke email verify. 10 min valid.
+  - Resend OTP: Naya OTP bhej sakte ho.
+  - Login: Email + password. JWT token milta hai.
+  - Login with OTP: Send OTP on email, OTP se login (password-less).
+  - Forgot Password: Email bhejo, reset link/OTP.
+  - Reset Password: Token se naya password set.
+  - Logout: Token invalidate / client clear.
+  - Profile: Get/update details, change password.
+  - Protected routes: Login nahi hai to checkout, profile, orders, rewards pe nahi ja sakte.
+  - Admin/Seller routes: Role check - sirf admin ya seller hi enter kar sakta hai.
+
+----- 7.2 HOMEPAGE -----
+  - Cinematic Hero: Hero section (sliders se ya static).
+  - Featured Brands: Brands list (API se).
+  - Shop by Category: Categories carousel.
+  - Most Loved Brands: Brands section.
+  - New Arrivals: Featured products (8).
+  - Offers For You: Offers section.
+  - Why Buy From Us: USPs.
+  - Celebrity Look: Content section.
+  - Inspiration Section: Content.
+  - Explore Boutiques: Boutiques link/section.
+  - Spotted With JIT: Section.
+
+----- 7.3 PRODUCTS -----
+  - Product listing: Pagination, filters (category, brand, search).
+  - Product detail: Single product, images, price, description, add to cart, add to wishlist.
+  - Categories: Category se filter, slug se URL.
+  - Search: Search term se products.
+
+----- 7.4 CART -----
+  - Add to cart: Product/variant, quantity. (Login optional - agar guest hai to bhi cart local/API se)
+  - Cart drawer: Side drawer me cart items, quantity update, remove.
+  - Cart page: Full page cart, update quantities, remove, proceed to checkout.
+
+----- 7.5 WISHLIST -----
+  - Add/remove wishlist: Login required (API).
+  - Wishlist page: Saari wishlist items, remove, add to cart.
+
+----- 7.6 CHECKOUT & ORDERS -----
+  - Checkout: Shipping address, billing address (optional - same as shipping), payment method (e.g. COD), order notes. Cart items se order create.
+  - Order create: Stock check, tax (18% GST), shipping (free). Order table + order_items, addresses save. Cart clear ho sakta hai.
+  - Order history: User ke saare orders list.
+  - Order detail: Single order view, status, tracking (agar admin ne set kiya).
+  - Cancel order: User order cancel kar sakta hai (allowed status pe).
+  - Download receipt: Order ka PDF receipt.
+
+----- 7.7 ADMIN PANEL -----
+  - Dashboard: Stats (orders, users, products, etc.).
+  - Products: List (search, active filter), Add/Edit/Delete product. Images: multiple, URL ya file upload (upload API se URL aata hai).
+  - Categories: List, Add/Edit/Delete. Image: URL ya file upload. Table me image column.
+  - Brands: List, Add/Edit/Delete. Logo: URL ya file upload.
+  - Sliders: List, Add/Edit/Delete, drag-drop se order change. Image: URL ya file upload. Homepage pe active sliders dikhte hain.
+  - Users: List, view, update, delete.
+  - Orders: List, order status update, tracking number set.
+  - Image Upload: POST /api/admin/upload - ek image file bhejo, server par save, public URL return (e.g. /uploads/filename.jpg). Admin panels me ImageInput component use hota hai - URL enter ya file choose dono.
+
+----- 7.8 SELLER PANEL -----
+  - Seller Dashboard: Overview.
+  - Seller Products: Products manage (seller-specific).
+  - Seller Orders / Analytics: Routes present, implementation seller-side.
+
+----- 7.9 COMMON UI -----
+  - Header: Logo, nav links (Home, Products, Boutiques, etc.), search, cart icon, wishlist, login/profile.
+  - Footer: Links, info.
+  - Search modal: Search products.
+  - Toast: Success/error messages (react-hot-toast).
+  - 404: Not found page.
+  - Floating buttons: Optional (e.g. scroll to top, support).
+
+
+--------------------------------------------------------------------------------
+8. DATA FLOW (Basic se pura flow)
+--------------------------------------------------------------------------------
+
+1) User site kholta hai -> HomePage load -> Sliders, categories, brands, featured products API se aate hain.
+
+2) Product browse -> ProductListPage -> /api/products (filters, pagination) -> ProductCard click -> ProductDetailPage -> /api/products/:id.
+
+3) Add to cart -> POST /api/cart (login required) -> Cart state update (Redux) -> Cart drawer / Cart page me dikhega.
+
+4) Wishlist -> POST/DELETE /api/wishlist -> Wishlist slice update.
+
+5) Checkout -> Login check -> CheckoutPage -> Shipping/billing form -> POST /api/orders (cart items, address, payment method) -> Backend: cart read, stock check, order + order_items + addresses insert, payment method (e.g. COD) -> Response order detail -> Redirect/order success. Cart clear (backend/frontend).
+
+6) Orders -> GET /api/orders -> OrderHistoryPage. Order click -> GET /api/orders/:id -> OrderDetailPage. Cancel -> PUT /api/orders/:id/cancel. Receipt -> GET /api/orders/:id/receipt (PDF).
+
+7) Register -> POST /api/auth/register -> Backend user insert, OTP email -> User OTP enter -> POST /api/auth/verify-email -> Email verified. Login -> POST /api/auth/login -> JWT -> Frontend token save (localStorage) -> Headers me Authorization.
+
+8) Admin login -> /admin -> AdminRoute role check -> Admin layout + sidebar -> Dashboard, Products, etc. Product add -> form (name, price, images, ...) -> POST /api/admin/products. Image: ya to URL daalo ya file upload -> POST /api/admin/upload -> URL milta hai -> wahi product images me use. Same Categories, Brands, Sliders me ImageInput (URL ya upload).
+
+9) Sliders homepage pe: GET /api/sliders/active -> CinematicHero/HeroSection me use.
+
+
+--------------------------------------------------------------------------------
+9. REDUX STATE (Frontend state management)
+--------------------------------------------------------------------------------
+  - auth: user, token, login/register/OTP state
+  - products: list, featured, single product
+  - cart: items, count
+  - wishlist: items
+  - orders: list, single order
+  - admin: dashboardStats, products, users, categories, brands, orders, sliders
+  - homepage: (if any extra homepage data)
+  - categories: categories list
+  - brands: brands list
+  - ui: UI settings (e.g. theme, sidebar)
+
+
+--------------------------------------------------------------------------------
+10. DATABASE (Conceptual - MySQL)
+--------------------------------------------------------------------------------
+  - users (id, first_name, last_name, email, password, role, email_verification, etc.)
+  - products, product_images, product_variants (optional)
+  - categories, brands
+  - cart (user_id, product_id, quantity)
+  - wishlist (user_id, product_id)
+  - orders, order_items, addresses
+  - sliders (title, description, image_url, display_order, is_active)
+  - (Payment tables if Razorpay/Stripe integrate kiye to)
+
+
+--------------------------------------------------------------------------------
+11. IMPORTANT FILES (Reference)
+--------------------------------------------------------------------------------
+  - Frontend entry: frontend/src/index.js -> App.js -> Routes
+  - Backend entry: backend/server.js -> routes mount, middleware
+  - Auth middleware: backend/middleware/auth.js (protect, adminOnly)
+  - Admin routes: backend/routes/admin.js
+  - Upload: backend/controllers/uploadController.js, POST /api/admin/upload in server.js
+  - ImageInput component: frontend/src/components/Admin/ImageInput.js (URL + file upload, preview)
+
+
+--------------------------------------------------------------------------------
+12. SUMMARY - WEBSITE ME KYA KYA HAI
+--------------------------------------------------------------------------------
+  - Full e-commerce: products, categories, brands, cart, wishlist, checkout, orders.
+  - Auth: Register (OTP verify), Login (password / OTP), Forgot/Reset password, Profile.
+  - Homepage: Hero, categories, brands, new arrivals, offers, multiple sections.
+  - Admin: Dashboard, Products/Categories/Brands/Sliders CRUD, Users, Orders management, image upload (URL ya file).
+  - Seller: Dashboard, Products, Orders, Analytics routes.
+  - Order: Create, history, detail, cancel, PDF receipt.
+  - Search, filters, pagination.
+  - Role-based access: Customer, Admin, Seller.
+  - Responsive UI, toasts, 404 page.
+
+================================================================================
+                              END OF DOCUMENT
+================================================================================

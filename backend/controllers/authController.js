@@ -94,7 +94,7 @@ const register = asyncHandler(async (req, res) => {
     ];
 
     const result = await executeQuery(insertUserQuery, userValues);
-    const userId = result.rows.insertId;
+    const userId = result.insertId;
 
     // Send OTP email
     const emailResult = await sendOTPEmail(email, otp, 'verification');
@@ -633,7 +633,7 @@ const sendLoginOTP = asyncHandler(async (req, res) => {
 
   // Update user with login OTP
   await executeQuery(
-    'UPDATE users SET email_verification_token = ?, email_verification_expires = ? WHERE email = ?',
+    'UPDATE users SET login_otp_token = ?, login_otp_expires = ? WHERE email = ?',
     [otp, otpExpires, email]
   );
 
@@ -683,9 +683,9 @@ const loginWithOTP = asyncHandler(async (req, res) => {
     });
   }
 
-  // First check if user exists and get current OTP
+  // First check if user exists and get current login OTP
   const userCheck = await executeQuery(
-    'SELECT id, first_name, last_name, email, role, is_active, is_email_verified, email_verification_token, email_verification_expires FROM users WHERE email = ?',
+    'SELECT id, first_name, last_name, email, role, is_active, is_email_verified, login_otp_token, login_otp_expires FROM users WHERE email = ?',
     [email]
   );
 
@@ -706,24 +706,24 @@ const loginWithOTP = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check if OTP exists
-  if (!user.email_verification_token) {
+  // Check if login OTP exists
+  if (!user.login_otp_token) {
     return res.status(400).json({
       success: false,
       message: 'No OTP found. Please request a new OTP.'
     });
   }
 
-  // Check if OTP is expired
-  if (!user.email_verification_expires || new Date(user.email_verification_expires) < new Date()) {
+  // Check if login OTP is expired
+  if (!user.login_otp_expires || new Date(user.login_otp_expires) < new Date()) {
     return res.status(400).json({
       success: false,
       message: 'OTP has expired. Please request a new OTP.'
     });
   }
 
-  // Clean stored OTP (remove any whitespace and ensure it's a string)
-  const storedOTP = String(user.email_verification_token || '').trim();
+  // Clean stored login OTP (remove any whitespace and ensure it's a string)
+  const storedOTP = String(user.login_otp_token || '').trim();
 
   // Compare OTP (exact string comparison after cleaning)
   if (storedOTP !== cleanOTP) {
@@ -751,15 +751,15 @@ const loginWithOTP = asyncHandler(async (req, res) => {
     console.log('✅ OTP verified successfully for login:', email);
   }
 
-  // OTP is valid - Clear OTP after successful login
+  // OTP is valid - Clear login OTP after successful login
   await executeQuery(
-    'UPDATE users SET email_verification_token = NULL, email_verification_expires = NULL WHERE id = ?',
+    'UPDATE users SET login_otp_token = NULL, login_otp_expires = NULL WHERE id = ?',
     [user.id]
   );
 
   // Remove sensitive fields
-  delete user.email_verification_token;
-  delete user.email_verification_expires;
+  delete user.login_otp_token;
+  delete user.login_otp_expires;
 
   // Send token response
   sendTokenResponse(user, 200, res, 'Login successful');

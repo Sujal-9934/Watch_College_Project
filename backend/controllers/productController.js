@@ -26,13 +26,43 @@ const getProducts = asyncHandler(async (req, res) => {
   const params = [];
 
   if (category) {
-    whereClause += ' AND p.category_id = ?';
-    params.push(category);
+    // category query can be slug (e.g. mens-watches or "luxury watches") or numeric id
+    const isNumericId = /^\d+$/.test(String(category).trim());
+    if (isNumericId) {
+      whereClause += ' AND p.category_id = ?';
+      params.push(parseInt(category, 10));
+    } else {
+      const rawSlug = String(category).trim();
+      // Normalize for lookup: lowercase, spaces -> hyphens (URL and DB often use hyphens)
+      const normalizedSlug = rawSlug.toLowerCase().replace(/\s+/g, '-').replace(/-+/g, '-');
+      const catResult = await executeQuery(
+        'SELECT id FROM categories WHERE (slug = ? OR slug = ? OR REPLACE(LOWER(slug), \' \', \'-\') = ?) AND is_active = 1 LIMIT 1',
+        [rawSlug, normalizedSlug, normalizedSlug]
+      );
+      if (catResult.rows.length > 0) {
+        whereClause += ' AND p.category_id = ?';
+        params.push(catResult.rows[0].id);
+      }
+    }
   }
 
   if (brand) {
-    whereClause += ' AND p.brand_id = ?';
-    params.push(brand);
+    const isNumericId = /^\d+$/.test(String(brand).trim());
+    if (isNumericId) {
+      whereClause += ' AND p.brand_id = ?';
+      params.push(parseInt(brand, 10));
+    } else {
+      const rawSlug = String(brand).trim();
+      const normalizedSlug = rawSlug.toLowerCase().replace(/\s+/g, '-').replace(/-+/g, '-');
+      const brandResult = await executeQuery(
+        'SELECT id FROM brands WHERE (slug = ? OR slug = ? OR REPLACE(LOWER(slug), \' \', \'-\') = ?) AND is_active = 1 LIMIT 1',
+        [rawSlug, normalizedSlug, normalizedSlug]
+      );
+      if (brandResult.rows.length > 0) {
+        whereClause += ' AND p.brand_id = ?';
+        params.push(brandResult.rows[0].id);
+      }
+    }
   }
 
   if (minPrice) {
@@ -299,38 +329,98 @@ const searchProducts = asyncHandler(async (req, res) => {
     });
   }
 
+  const trimmedTerm = searchTerm.trim();
+  const searchPattern = `%${trimmedTerm}%`;
+  const searchPatternStart = `${trimmedTerm}%`;
+
   const searchQuery = `
     SELECT
-      p.id, p.name, p.price, p.original_price, p.discount_percentage,
-      GROUP_CONCAT(pi.image_url ORDER BY pi.is_primary DESC) as images,
+      p.id, 
+      p.name, 
+      p.price, 
+      p.original_price, 
+      p.discount_percentage,
+      p.is_featured,
+      p.sku,
+      p.stock_quantity,
+      COALESCE(GROUP_CONCAT(DISTINCT pi.image_url ORDER BY pi.is_primary DESC, pi.sort_order ASC), '') as images,
       b.name as brand_name,
-      MATCH(p.name, p.description, p.short_description) AGAINST(? IN NATURAL LANGUAGE MODE) as relevance
+      b.slug as brand_slug,
+      c.name as category_name,
+      CASE 
+        WHEN p.name LIKE ? THEN 3
+        WHEN p.name LIKE ? THEN 2
+        WHEN COALESCE(p.description, '') LIKE ? OR COALESCE(p.short_description, '') LIKE ? OR p.sku LIKE ? THEN 1
+        ELSE 0
+      END as relevance
     FROM products p
     LEFT JOIN product_images pi ON p.id = pi.product_id
     LEFT JOIN brands b ON p.brand_id = b.id
-    WHERE MATCH(p.name, p.description, p.short_description) AGAINST(? IN NATURAL LANGUAGE MODE)
-      AND p.is_active = 1 AND p.stock_quantity > 0
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.is_active = 1 
+      AND (
+        p.name LIKE ? 
+        OR COALESCE(p.description, '') LIKE ? 
+        OR COALESCE(p.short_description, '') LIKE ?
+        OR p.sku LIKE ?
+        OR COALESCE(b.name, '') LIKE ?
+      )
     GROUP BY p.id
-    ORDER BY relevance DESC, p.is_featured DESC
+    ORDER BY relevance DESC, p.is_featured DESC, p.created_at DESC
     LIMIT ?
   `;
 
-  const { rows } = await executeQuery(searchQuery, [searchTerm, searchTerm, parseInt(limit)]);
+  try {
+    const queryParams = [
+      searchPatternStart, // For exact start match (relevance 3)
+      searchPattern, // For contains match (relevance 2)
+      searchPattern, // For description match (relevance 1)
+      searchPattern, // For short description match (relevance 1)
+      searchPattern, // For sku match (relevance 1)
+      searchPattern, // name LIKE (WHERE clause)
+      searchPattern, // description LIKE (WHERE clause)
+      searchPattern, // short_description LIKE (WHERE clause)
+      searchPattern, // sku LIKE (WHERE clause)
+      searchPattern, // brand name LIKE (WHERE clause)
+      parseInt(limit) || 10,
+    ];
 
-  const products = rows.map(product => ({
-    ...product,
-    images: product.images ? product.images.split(',') : [],
-    price: parseFloat(product.price),
-    original_price: product.original_price ? parseFloat(product.original_price) : null,
-    is_on_sale: product.original_price && product.original_price > product.price,
-  }));
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Search Query:', searchQuery);
+      console.log('Search Params:', queryParams);
+    }
 
-  res.json({
-    success: true,
-    data: products,
-    searchTerm,
-    total: products.length,
-  });
+    const { rows } = await executeQuery(searchQuery, queryParams);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Search Results Count:', rows.length);
+    }
+
+    const products = rows.map(product => ({
+      ...product,
+      images: product.images ? product.images.split(',').filter(Boolean) : [],
+      price: parseFloat(product.price),
+      original_price: product.original_price ? parseFloat(product.original_price) : null,
+      discount_percentage: product.discount_percentage ? parseFloat(product.discount_percentage) : 0,
+      is_on_sale: product.original_price && parseFloat(product.original_price) > parseFloat(product.price),
+      stock_quantity: parseInt(product.stock_quantity) || 0,
+    }));
+
+    res.json({
+      success: true,
+      data: products,
+      searchTerm: trimmedTerm,
+      total: products.length,
+    });
+  } catch (error) {
+    console.error('Search query error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({
+      success: false,
+      message: 'Search failed',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
 });
 
 // @desc    Get products by category

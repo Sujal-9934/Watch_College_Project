@@ -37,9 +37,9 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
   // Get recent orders
   const recentOrdersResult = await executeQuery(`
-    SELECT o.*, u.first_name, u.last_name, u.email
+    SELECT o.*, sa.first_name, sa.last_name, sa.email
     FROM orders o
-    JOIN users u ON o.user_id = u.id
+    JOIN addresses sa ON o.shipping_address_id = sa.id
     ORDER BY o.created_at DESC
     LIMIT 10
   `);
@@ -56,13 +56,30 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   // Get sales by month (last 6 months)
   const salesByMonthResult = await executeQuery(`
     SELECT 
-      DATE_FORMAT(created_at, '%Y-%m') as month,
+      DATE_FORMAT(created_at, '%b %Y') as month,
       COUNT(*) as orders,
       COALESCE(SUM(total_amount), 0) as revenue
     FROM orders
     WHERE payment_status = 'paid' AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
     GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-    ORDER BY month ASC
+    ORDER BY created_at ASC
+  `);
+
+  // Get orders by status
+  const ordersByStatusResult = await executeQuery(`
+    SELECT status, COUNT(*) as count
+    FROM orders
+    GROUP BY status
+  `);
+
+  // Get top categories
+  const categoryStatsResult = await executeQuery(`
+    SELECT c.name, COUNT(p.id) as count
+    FROM categories c
+    LEFT JOIN products p ON c.id = p.category_id
+    GROUP BY c.id
+    ORDER BY count DESC
+    LIMIT 5
   `);
 
   res.json({
@@ -90,6 +107,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       recentOrders: recentOrdersResult.rows,
       lowStockProducts: lowStockResult.rows,
       salesByMonth: salesByMonthResult.rows,
+      ordersByStatus: ordersByStatusResult.rows,
+      categoryStats: categoryStatsResult.rows,
     },
   });
 });
@@ -115,7 +134,7 @@ const getUsers = asyncHandler(async (req, res) => {
     params.push(role);
   }
 
-  if (is_active !== undefined) {
+  if (is_active === 'true' || is_active === 'false') {
     whereClause += ' AND is_active = ?';
     params.push(is_active === 'true' ? 1 : 0);
   }
@@ -290,122 +309,7 @@ const deleteUser = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get all orders (admin)
-// @route   GET /api/admin/orders
-// @access  Private/Admin
-const getOrders = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, status, payment_status, search } = req.query;
-  const offset = (page - 1) * limit;
 
-  let whereClause = 'WHERE 1=1';
-  const params = [];
-
-  if (status) {
-    whereClause += ' AND o.status = ?';
-    params.push(status);
-  }
-
-  if (payment_status) {
-    whereClause += ' AND o.payment_status = ?';
-    params.push(payment_status);
-  }
-
-  if (search) {
-    whereClause += ' AND (o.order_number LIKE ? OR u.email LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ?)';
-    const searchTerm = `%${search}%`;
-    params.push(searchTerm, searchTerm, searchTerm, searchTerm);
-  }
-
-  // Get total count
-  const countQuery = `
-    SELECT COUNT(*) as total 
-    FROM orders o
-    JOIN users u ON o.user_id = u.id
-    ${whereClause}
-  `;
-  const countResult = await executeQuery(countQuery, params);
-  const totalOrders = countResult.rows[0].total;
-  const totalPages = Math.ceil(totalOrders / limit);
-
-  // Get orders
-  const ordersQuery = `
-    SELECT 
-      o.*,
-      u.first_name, u.last_name, u.email
-    FROM orders o
-    JOIN users u ON o.user_id = u.id
-    ${whereClause}
-    ORDER BY o.created_at DESC
-    LIMIT ? OFFSET ?
-  `;
-  const ordersParams = [...params, parseInt(limit), parseInt(offset)];
-  const ordersResult = await executeQuery(ordersQuery, ordersParams);
-
-  res.json({
-    success: true,
-    data: ordersResult.rows,
-    pagination: {
-      currentPage: parseInt(page),
-      totalPages,
-      totalOrders: parseInt(totalOrders),
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    },
-  });
-});
-
-// @desc    Update order status (admin)
-// @route   PUT /api/admin/orders/:id/status
-// @access  Private/Admin
-const updateOrderStatus = asyncHandler(async (req, res) => {
-  const orderId = req.params.id;
-  const { status, tracking_number } = req.body;
-
-  const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
-  if (!status || !validStatuses.includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid status',
-    });
-  }
-
-  // Check if order exists
-  const orderCheck = await executeQuery('SELECT id FROM orders WHERE id = ?', [orderId]);
-  if (orderCheck.rows.length === 0) {
-    return res.status(404).json({
-      success: false,
-      message: 'Order not found',
-    });
-  }
-
-  const updateFields = ['status = ?'];
-  const updateValues = [status];
-
-  if (tracking_number) {
-    updateFields.push('tracking_number = ?');
-    updateValues.push(tracking_number);
-  }
-
-  if (status === 'delivered') {
-    updateFields.push('delivered_at = NOW()');
-  }
-
-  updateValues.push(orderId);
-
-  await executeQuery(`UPDATE orders SET ${updateFields.join(', ')} WHERE id = ?`, updateValues);
-
-  // Get updated order
-  const updatedOrderResult = await executeQuery(
-    'SELECT o.*, u.first_name, u.last_name, u.email FROM orders o JOIN users u ON o.user_id = u.id WHERE o.id = ?',
-    [orderId]
-  );
-
-  res.json({
-    success: true,
-    message: 'Order status updated successfully',
-    data: updatedOrderResult.rows[0],
-  });
-});
 
 module.exports = {
   getDashboardStats,
@@ -413,7 +317,5 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
-  getOrders,
-  updateOrderStatus,
 };
 

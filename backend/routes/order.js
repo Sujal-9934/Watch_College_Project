@@ -6,6 +6,7 @@ const {
   getOrders,
   getOrder,
   cancelOrder,
+  downloadOrderReceipt,
 } = require('../controllers/orderController');
 
 router.use(protect);
@@ -19,6 +20,9 @@ router.route('/:id')
 
 router.route('/:id/cancel')
   .put(cancelOrder);
+
+router.route('/:id/receipt')
+  .get(downloadOrderReceipt);
 
 module.exports = router;
 

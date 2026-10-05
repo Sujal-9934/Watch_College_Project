@@ -97,6 +97,17 @@ const superAdminOnly = (req, res, next) => {
   next();
 };
 
+// Seller only access
+const sellerOnly = (req, res, next) => {
+  if (!req.user || req.user.role !== 'seller') {
+    return res.status(403).json({
+      success: false,
+      message: 'Seller access required'
+    });
+  }
+  next();
+};
+
 // Optional authentication - doesn't fail if no token
 const optionalAuth = asyncHandler(async (req, res, next) => {
   let token;
@@ -142,6 +153,7 @@ module.exports = {
   authorize,
   adminOnly,
   superAdminOnly,
+  sellerOnly,
   optionalAuth,
   requireVerification
 };

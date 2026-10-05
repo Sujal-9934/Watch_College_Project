@@ -6,21 +6,28 @@ const {
   getUser,
   updateUser,
   deleteUser,
-  getOrders,
-  updateOrderStatus,
 } = require('../controllers/adminController');
-const {
-  getAdminProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} = require('../controllers/adminProductController');
+
 const {
   getAdminCategories,
   createCategory,
   updateCategory,
   deleteCategory,
 } = require('../controllers/adminCategoryController');
+const {
+  getAdminBrands,
+  createBrand,
+  updateBrand,
+  deleteBrand,
+} = require('../controllers/adminBrandController');
+const {
+  getAdminSliders,
+  getAdminSlider,
+  createSlider,
+  updateSlider,
+  deleteSlider,
+  updateSliderOrder,
+} = require('../controllers/sliderController');
 
 const router = express.Router();
 
@@ -37,11 +44,7 @@ router.get('/users/:id', getUser);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 
-// Products management
-router.get('/products', getAdminProducts);
-router.post('/products', createProduct);
-router.put('/products/:id', updateProduct);
-router.delete('/products/:id', deleteProduct);
+
 
 // Categories management
 router.get('/categories', getAdminCategories);
@@ -49,9 +52,21 @@ router.post('/categories', createCategory);
 router.put('/categories/:id', updateCategory);
 router.delete('/categories/:id', deleteCategory);
 
-// Orders management
-router.get('/orders', getOrders);
-router.put('/orders/:id/status', updateOrderStatus);
+// Brands management
+router.get('/brands', getAdminBrands);
+router.post('/brands', createBrand);
+router.put('/brands/:id', updateBrand);
+router.delete('/brands/:id', deleteBrand);
+
+
+
+// Sliders management
+router.get('/sliders', getAdminSliders);
+router.get('/sliders/:id', getAdminSlider);
+router.post('/sliders', createSlider);
+router.put('/sliders/:id', updateSlider);
+router.delete('/sliders/:id', deleteSlider);
+router.put('/sliders/order', updateSliderOrder);
 
 module.exports = router;
 
