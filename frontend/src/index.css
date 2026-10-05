@@ -1,0 +1,1485 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-100 hover:bg-secondary-200 text-secondary-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200;
+  }
+
+  /* Hero Section Animations */
+  .animate-fade-in-up {
+    animation: fadeInUp 1s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-bounce-slow {
+    animation: bounceSlow 3s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Advanced Animations */
+  .animate-slide-in-left {
+    animation: slideInLeft 0.5s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out forwards;
+  }
+
+  .animate-rotate-in {
+    animation: rotateIn 0.5s ease-out forwards;
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .hover-glow {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+
+  /* Skeleton Loading */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes bounceSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-200deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0);
+  }
+}
+
+/* Navigation Menu Animations */
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.animate-fade-slide {
+  animation: fadeSlide 0.4s ease-out forwards;
+}
+
+.animate-slide-right {
+  animation: slideRight 0.3s ease-out forwards;
+}
+
+.animate-zoom-in {
+  animation: zoomIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero Section Advanced Animations */
+.animate-shimmer {
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ============================================
+   LUXURY HERO SECTION STYLES
+   ============================================ */
+
+/* Glassmorphism Card */
+.glassmorphism-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Luxury Animations */
+.animate-luxury-fade-in-up {
+  animation: luxuryFadeInUp 1.2s ease-out forwards;
+}
+
+.animate-luxury-slide-up {
+  animation: luxurySlideUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes luxuryFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes luxurySlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gradient Shift Animation */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Light Streaks */
+.luxury-light-streak {
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, 0.4), transparent);
+  opacity: 0.3;
+  animation: lightStreakMove 8s linear infinite;
+}
+
+.streak-1 {
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.streak-2 {
+  left: 50%;
+  animation-delay: 2.5s;
+  width: 3px;
+}
+
+.streak-3 {
+  left: 80%;
+  animation-delay: 5s;
+}
+
+@keyframes lightStreakMove {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Floating Particles */
+.luxury-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(212, 175, 55, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.8);
+  animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(100px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Watch Container */
+.luxury-watch-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 600px;
+  transition: transform 0.1s ease-out;
+}
+
+/* Ambient Glow Ring */
+.luxury-glow-ring {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+  filter: blur(60px);
+  animation: glowPulse 3s ease-in-out infinite;
+  transform: scale(1.2);
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.3);
+  }
+}
+
+/* Watch Wrapper */
+.luxury-watch-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.5));
+}
+
+/* Watch Image */
+.luxury-watch-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: watchFloat 6s ease-in-out infinite;
+  filter: brightness(1.1) contrast(1.1);
+}
+
+@keyframes watchFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+}
+
+/* Light Reflection */
+.luxury-light-reflection {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(212, 175, 55, 0.1) 100%
+  );
+  animation: reflectionMove 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes reflectionMove {
+  0%, 100% {
+    transform: translateX(-100%) translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(100%) translateY(100%);
+    opacity: 0.3;
+  }
+}
+
+/* Glass Reflection */
+.luxury-glass-reflection {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 50%
+  );
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Floating Elements */
+.luxury-floating-element {
+  animation: elementFloat 4s ease-in-out infinite;
+}
+
+.element-1 {
+  animation-delay: 0s;
+}
+
+.element-2 {
+  animation-delay: 2s;
+}
+
+@keyframes elementFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+/* Background Blur */
+.luxury-background-blur {
+  background: radial-gradient(circle at center, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+  filter: blur(80px);
+  transform: scale(1.5);
+  pointer-events: none;
+}
+
+/* Luxury Buttons */
+.luxury-button-primary {
+  position: relative;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.9) 0%, rgba(184, 134, 11, 0.9) 100%);
+  color: #000;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+}
+
+.luxury-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5);
+}
+
+.luxury-button-glow {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.luxury-button-primary:hover .luxury-button-glow {
+  opacity: 1;
+  animation: buttonGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes buttonGlow {
+  0%, 100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+}
+
+.luxury-button-secondary {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  color: #fff;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.luxury-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(212, 175, 55, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.2);
+}
+
+/* Scroll Indicator */
+@keyframes scroll-indicator {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+.animate-scroll-indicator {
+  animation: scroll-indicator 2s ease-in-out infinite;
+}
+
+/* Radial Gradient Utility */
+.bg-radial-gradient {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .luxury-watch-container {
+    max-width: 500px;
+    height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .luxury-watch-container {
+    max-width: 400px;
+    height: 400px;
+  }
+  
+  .luxury-watch-image {
+    filter: brightness(1.05) contrast(1.05);
+  }
+}
+
+/* ============================================
+   CINEMATIC SCROLL-BASED ANIMATIONS
+   ============================================ */
+
+/* Light Rays */
+.luxury-light-ray {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, 0.6), transparent);
+  animation: lightRayMove 6s linear infinite;
+}
+
+.ray-1 {
+  left: 25%;
+  animation-delay: 0s;
+}
+
+.ray-2 {
+  left: 50%;
+  animation-delay: 2s;
+  width: 2px;
+}
+
+.ray-3 {
+  left: 75%;
+  animation-delay: 4s;
+}
+
+@keyframes lightRayMove {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Cinematic Watch Container */
+.cinematic-watch-container {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  transition: transform 0.1s ease-out;
+}
+
+.cinematic-watch-glow {
+  position: absolute;
+  inset: -50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, transparent 70%);
+  filter: blur(80px);
+  animation: cinematicGlowPulse 4s ease-in-out infinite;
+}
+
+@keyframes cinematicGlowPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+.cinematic-watch-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(1.2) contrast(1.1) drop-shadow(0 30px 80px rgba(0, 0, 0, 0.8));
+  animation: cinematicWatchFloat 8s ease-in-out infinite;
+}
+
+@keyframes cinematicWatchFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(5deg);
+  }
+}
+
+.cinematic-watch-reflection {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 50%,
+    rgba(212, 175, 55, 0.15) 100%
+  );
+  animation: cinematicReflectionMove 5s ease-in-out infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes cinematicReflectionMove {
+  0%, 100% {
+    transform: translateX(-150%) translateY(-150%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(150%) translateY(150%);
+    opacity: 0.4;
+  }
+}
+
+/* Cinematic Headline */
+.cinematic-headline {
+  font-size: 5rem;
+  font-weight: 300;
+  line-height: 1.1;
+  margin-bottom: 2rem;
+}
+
+.cinematic-text-split {
+  display: block;
+  animation: cinematicTextSplit 1.5s ease-out forwards;
+  opacity: 0;
+}
+
+.cinematic-text-split.delay-200 {
+  animation-delay: 0.2s;
+}
+
+@keyframes cinematicTextSplit {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+    clip-path: inset(100% 0 0 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Magnetic Button */
+.cinematic-magnetic-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.9) 0%, rgba(184, 134, 11, 0.9) 100%);
+  color: #000;
+  padding: 18px 40px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 40px rgba(212, 175, 55, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.cinematic-magnetic-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 15px 50px rgba(212, 175, 55, 0.6);
+}
+
+.cinematic-magnetic-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.cinematic-magnetic-button:hover::before {
+  opacity: 1;
+  animation: magneticGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes magneticGlow {
+  0%, 100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+}
+
+/* Exploded Watch Parts */
+.cinematic-exploded-watch {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.watch-part {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.watch-part:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.6);
+  transform: scale(1.1);
+}
+
+.part-label {
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+  font-size: 14px;
+}
+
+.part-movement {
+  top: 20%;
+  left: 10%;
+}
+
+.part-glass {
+  top: 50%;
+  right: 10%;
+}
+
+.part-body {
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Fade In Animations */
+.cinematic-fade-in-left {
+  animation: fadeInLeft 1s ease-out forwards;
+  opacity: 0;
+}
+
+.cinematic-fade-in-right {
+  animation: fadeInRight 1s ease-out forwards;
+  opacity: 0;
+  animation-delay: 0.2s;
+}
+
+.cinematic-fade-in-up {
+  animation: fadeInUp 1s ease-out forwards;
+  opacity: 0;
+}
+
+.cinematic-fade-in-up.delay-400 {
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Collage Container */
+.cinematic-collage-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  padding: 40px;
+}
+
+.cinematic-collage-item {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cinematic-collage-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+.cinematic-collage-item:hover {
+  transform: scale(1.05) !important;
+  z-index: 100 !important;
+}
+
+.cinematic-glass-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  backdrop-filter: blur(0px);
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.cinematic-glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 40px 60px;
+  border-radius: 30px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Mask Reveal Animation */
+.cinematic-mask-reveal {
+  background: linear-gradient(to right, #fff, #fff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: maskReveal 2s ease-out forwards;
+  clip-path: inset(0 100% 0 0);
+}
+
+@keyframes maskReveal {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Ambient Waves */
+.cinematic-ambient-waves {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(212, 175, 55, 0.1) 0%,
+    transparent 70%
+  );
+  animation: ambientWave 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ambientWave {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+/* 3D Showcase */
+.cinematic-showcase-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 2000px;
+}
+
+.cinematic-showcase-watch {
+  position: relative;
+  width: 800px;
+  height: 800px;
+  transition: transform 0.1s ease-out;
+}
+
+.cinematic-showcase-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(1.3) contrast(1.2) drop-shadow(0 40px 100px rgba(0, 0, 0, 0.8));
+}
+
+.cinematic-showcase-light {
+  position: absolute;
+  inset: -100px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 50%
+  );
+  animation: showcaseLightMove 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes showcaseLightMove {
+  0%, 100% {
+    transform: translate(-20%, -20%);
+  }
+  50% {
+    transform: translate(20%, 20%);
+  }
+}
+
+/* CTA Section */
+.cinematic-cta-watch {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.cinematic-soft-shadow {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 100px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
+  filter: blur(40px);
+}
+
+.cinematic-cta-title {
+  animation: ctaTitleAppear 1.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes ctaTitleAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+    letter-spacing: 20px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 2px;
+  }
+}
+
+.cinematic-cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.95) 0%, rgba(184, 134, 11, 0.95) 100%);
+  color: #000;
+  padding: 20px 50px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 15px 50px rgba(212, 175, 55, 0.5);
+  border: 2px solid rgba(212, 175, 55, 0.8);
+  animation: ctaButtonPulse 2s ease-in-out infinite;
+}
+
+.cinematic-cta-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 20px 60px rgba(212, 175, 55, 0.7);
+}
+
+@keyframes ctaButtonPulse {
+  0%, 100% {
+    box-shadow: 0 15px 50px rgba(212, 175, 55, 0.5);
+  }
+  50% {
+    box-shadow: 0 20px 60px rgba(212, 175, 55, 0.8);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .cinematic-watch-container {
+    width: 500px;
+    height: 500px;
+  }
+  
+  .cinematic-headline {
+    font-size: 3.5rem;
+  }
+  
+  .cinematic-collage-container {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cinematic-watch-container {
+    width: 400px;
+    height: 400px;
+  }
+  
+  .cinematic-headline {
+    font-size: 2.5rem;
+  }
+  
+  .cinematic-collage-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .cinematic-cta-title {
+    font-size: 3rem;
+  }
+}
+
+/* ============================================
+   ULTRA-LUXURY 4K ENHANCEMENTS
+   ============================================ */
+
+/* Hero Background with Grain */
+.cinematic-hero-bg {
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+  position: relative;
+}
+
+.cinematic-hero-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Enhanced Watch Image Quality */
+.cinematic-watch-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Breathing Animation for Watch */
+@keyframes cinematicBreathing {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.cinematic-watch-container {
+  animation: cinematicBreathing 4s ease-in-out infinite;
+}
+
+/* Enhanced Light Streaks */
+.luxury-light-ray {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+}
+
+/* Metal Gradients for Watch Parts */
+.watch-part {
+  background: linear-gradient(135deg, 
+    rgba(212, 175, 55, 0.15) 0%,
+    rgba(184, 134, 11, 0.1) 50%,
+    rgba(212, 175, 55, 0.15) 100%
+  );
+  border: 2px solid;
+  border-image: linear-gradient(135deg, 
+    rgba(212, 175, 55, 0.6) 0%,
+    rgba(255, 215, 0, 0.4) 50%,
+    rgba(212, 175, 55, 0.6) 100%
+  ) 1;
+  box-shadow: 
+    0 0 30px rgba(212, 175, 55, 0.3),
+    inset 0 0 20px rgba(212, 175, 55, 0.1);
+}
+
+.part-movement {
+  background: linear-gradient(135deg, 
+    rgba(192, 192, 192, 0.2) 0%,
+    rgba(169, 169, 169, 0.15) 100%
+  );
+  border-image: linear-gradient(135deg, 
+    rgba(192, 192, 192, 0.8) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(192, 192, 192, 0.8) 100%
+  ) 1;
+}
+
+.part-glass {
+  background: linear-gradient(135deg, 
+    rgba(212, 175, 55, 0.2) 0%,
+    rgba(184, 134, 11, 0.15) 100%
+  );
+}
+
+.part-body {
+  background: linear-gradient(135deg, 
+    rgba(205, 127, 50, 0.2) 0%,
+    rgba(184, 115, 51, 0.15) 100%
+  );
+  border-image: linear-gradient(135deg, 
+    rgba(205, 127, 50, 0.8) 0%,
+    rgba(255, 192, 203, 0.6) 50%,
+    rgba(205, 127, 50, 0.8) 100%
+  ) 1;
+}
+
+/* Enhanced Collage with Warm Gradient */
+.cinematic-collage-container {
+  background: linear-gradient(135deg, 
+    rgba(101, 67, 33, 0.1) 0%,
+    rgba(212, 175, 55, 0.05) 50%,
+    rgba(255, 215, 0, 0.1) 100%
+  );
+}
+
+/* Enhanced Glassmorphism */
+.cinematic-glass-card {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    inset 0 0 40px rgba(212, 175, 55, 0.05);
+}
+
+/* Enhanced Showcase with Depth of Field */
+.cinematic-showcase-image {
+  filter: 
+    brightness(1.3) 
+    contrast(1.2) 
+    drop-shadow(0 40px 100px rgba(0, 0, 0, 0.8))
+    blur(0px);
+  transition: filter 0.3s ease;
+}
+
+.cinematic-showcase-watch:hover .cinematic-showcase-image {
+  filter: 
+    brightness(1.4) 
+    contrast(1.3) 
+    drop-shadow(0 50px 120px rgba(212, 175, 55, 0.3))
+    blur(0px);
+}
+
+/* Motion Blur Effect on Scroll */
+.cinematic-watch-container {
+  transition: filter 0.1s ease-out;
+}
+
+/* Enhanced CTA Button */
+.cinematic-cta-button {
+  background: linear-gradient(135deg, 
+    rgba(212, 175, 55, 0.95) 0%,
+    rgba(184, 134, 11, 0.95) 50%,
+    rgba(212, 175, 55, 0.95) 100%
+  );
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+  box-shadow: 
+    0 15px 50px rgba(212, 175, 55, 0.5),
+    0 0 30px rgba(212, 175, 55, 0.3);
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced Watch Variation with Color Morph */
+.cinematic-watch-variation {
+  transition: filter 0.3s ease;
+  filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.5));
+}
+
+/* Enhanced Ambient Waves */
+.cinematic-ambient-waves {
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 20%, rgba(220, 20, 60, 0.1) 0%, transparent 50%);
+  animation: ambientWaveComplex 12s ease-in-out infinite;
+}
+
+@keyframes ambientWaveComplex {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.4;
+  }
+  33% {
+    transform: scale(1.1) rotate(120deg);
+    opacity: 0.6;
+  }
+  66% {
+    transform: scale(1.2) rotate(240deg);
+    opacity: 0.5;
+  }
+}
+
+/* Enhanced Soft Shadow */
+.cinematic-soft-shadow {
+  background: radial-gradient(
+    ellipse at center, 
+    rgba(0, 0, 0, 0.6) 0%, 
+    rgba(0, 0, 0, 0.3) 50%,
+    transparent 70%
+  );
+  filter: blur(50px);
+  animation: shadowPulse 3s ease-in-out infinite;
+}
+
+@keyframes shadowPulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* High Quality Image Rendering - No Blur */
+img[loading="lazy"],
+img[loading="eager"],
+.cinematic-collage-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove any blur filters from collage images */
+.cinematic-collage-item img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* High Quality Image Rendering - No Blur */
+img[loading="lazy"],
+img[loading="eager"],
+.cinematic-collage-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove any blur filters from collage images */
+.cinematic-collage-item img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}

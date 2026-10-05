@@ -1,0 +1,43 @@
+// Default slider data for fallback when API is not available
+export const defaultSliders = [
+  {
+    id: 1,
+    title: 'Luxury Timepieces',
+    description: 'Discover exquisite craftsmanship',
+    image_url: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    is_active: true,
+    display_order: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    title: 'Timeless Elegance',
+    description: 'Where tradition meets innovation',
+    image_url: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    is_active: true,
+    display_order: 2,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 3,
+    title: 'Precision Engineering',
+    description: 'Mastery in every movement',
+    image_url: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    is_active: true,
+    display_order: 3,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 4,
+    title: 'Heritage Collection',
+    description: 'Century-old craftsmanship',
+    image_url: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    is_active: true,
+    display_order: 4,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
