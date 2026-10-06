@@ -143,10 +143,10 @@ const productSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload.data;
-        state.pagination = action.payload.pagination;
-        state.filters = action.payload.filters;
-        state.sort = action.payload.sort;
+        state.products = Array.isArray(action.payload?.data) ? action.payload.data : [];
+        state.pagination = action.payload?.pagination || initialState.pagination;
+        state.filters = action.payload?.filters || initialState.filters;
+        state.sort = action.payload?.sort || initialState.sort;
         state.error = null;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
@@ -176,7 +176,7 @@ const productSlice = createSlice({
       })
       .addCase(fetchFeaturedProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.featuredProducts = action.payload.data;
+        state.featuredProducts = Array.isArray(action.payload?.data) ? action.payload.data : [];
         state.error = null;
       })
       .addCase(fetchFeaturedProducts.rejected, (state, action) => {
@@ -191,7 +191,7 @@ const productSlice = createSlice({
       })
       .addCase(searchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.searchResults = action.payload.data;
+        state.searchResults = Array.isArray(action.payload?.data) ? action.payload.data : [];
         state.error = null;
       })
       .addCase(searchProducts.rejected, (state, action) => {
@@ -206,8 +206,10 @@ const productSlice = createSlice({
       })
       .addCase(fetchProductsByCategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.categoryProducts = action.payload.data.products;
-        state.pagination = action.payload.data.pagination;
+        state.categoryProducts = Array.isArray(action.payload?.data?.products)
+          ? action.payload.data.products
+          : [];
+        state.pagination = action.payload?.data?.pagination || initialState.pagination;
         state.error = null;
       })
       .addCase(fetchProductsByCategory.rejected, (state, action) => {
@@ -222,7 +224,7 @@ const productSlice = createSlice({
       })
       .addCase(fetchProductReviews.fulfilled, (state, action) => {
         state.loading = false;
-        state.reviews = action.payload.data.reviews;
+        state.reviews = Array.isArray(action.payload?.data?.reviews) ? action.payload.data.reviews : [];
         state.error = null;
       })
       .addCase(fetchProductReviews.rejected, (state, action) => {

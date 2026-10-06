@@ -193,7 +193,7 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.data || [];
+        state.items = Array.isArray(action.payload?.data) ? action.payload.data : [];
         state.totals = calculateTotals(state.items);
         state.isInitialized = true;
         state.error = null;

@@ -6,7 +6,10 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const MostLovedBrands = () => {
   const dispatch = useDispatch();
-  const { brands, loading } = useSelector((state) => state.brands);
+  const { loading } = useSelector((state) => state.brands);
+  const brands = useSelector((state) => (
+    Array.isArray(state.brands?.brands) ? state.brands.brands : []
+  ));
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -57,7 +60,7 @@ const MostLovedBrands = () => {
   }
 
   // Sort brands by product count (most loved)
-  const sortedBrands = [...brands]
+  const sortedBrands = [...(brands || [])]
     .filter(brand => brand.product_count > 0)
     .sort((a, b) => b.product_count - a.product_count)
     .slice(0, 8);
@@ -127,4 +130,3 @@ const MostLovedBrands = () => {
 };
 
 export default MostLovedBrands;
-

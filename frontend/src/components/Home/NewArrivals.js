@@ -6,7 +6,10 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const NewArrivals = () => {
   const dispatch = useDispatch();
-  const { products, loading } = useSelector((state) => state.products);
+  const { loading } = useSelector((state) => state.products);
+  const products = useSelector((state) => (
+    Array.isArray(state.products?.products) ? state.products.products : []
+  ));
   const [activeFilter, setActiveFilter] = useState('ALL');
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -39,7 +42,7 @@ const NewArrivals = () => {
     }
   };
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = (products || []).filter((product) => {
     if (activeFilter === 'ALL') return true;
     const categoryName = product.category_name?.toUpperCase() || '';
     if (activeFilter === 'MEN') {

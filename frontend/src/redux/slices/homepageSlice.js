@@ -40,7 +40,7 @@ const homepageSlice = createSlice({
       })
       .addCase(fetchActiveSliders.fulfilled, (state, action) => {
         state.loading = false;
-        state.sliders = action.payload.data;
+        state.sliders = Array.isArray(action.payload?.data) ? action.payload.data : defaultSliders;
       })
       .addCase(fetchActiveSliders.rejected, (state, action) => {
         state.loading = false;

@@ -6,7 +6,9 @@ import { fetchActiveSliders } from '../../redux/slices/homepageSlice';
 
 const HeroSection = () => {
   const dispatch = useDispatch();
-  const { sliders } = useSelector((state) => state.homepage);
+  const sliders = useSelector((state) => (
+    Array.isArray(state.homepage?.sliders) ? state.homepage.sliders : []
+  ));
   const watchRef = useRef(null);
   const particlesRef = useRef(null);
 
@@ -21,7 +23,7 @@ const HeroSection = () => {
     },
   ];
 
-  const backgroundImages = sliders && sliders.length > 0
+  const backgroundImages = (sliders || []).length > 0
     ? [...sliders].sort((a, b) => a.display_order - b.display_order)
     : defaultSliders;
 

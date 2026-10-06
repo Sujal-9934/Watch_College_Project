@@ -6,7 +6,10 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const FeaturedBrands = () => {
   const dispatch = useDispatch();
-  const { brands, loading, error } = useSelector((state) => state.brands);
+  const { loading, error } = useSelector((state) => state.brands);
+  const brands = useSelector((state) => (
+    Array.isArray(state.brands?.brands) ? state.brands.brands : []
+  ));
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -193,4 +196,3 @@ const FeaturedBrands = () => {
 };
 
 export default FeaturedBrands;
-

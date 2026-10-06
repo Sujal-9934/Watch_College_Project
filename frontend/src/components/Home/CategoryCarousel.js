@@ -6,7 +6,10 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const CategoryCarousel = () => {
   const dispatch = useDispatch();
-  const { categories, loading } = useSelector((state) => state.categories);
+  const { loading } = useSelector((state) => state.categories);
+  const categories = useSelector((state) => (
+    Array.isArray(state.categories?.categories) ? state.categories.categories : []
+  ));
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -53,7 +56,7 @@ const CategoryCarousel = () => {
     );
   }
 
-  const displayCategories = categories.slice(0, 6);
+  const displayCategories = (categories || []).slice(0, 6);
 
   return (
     <section className="py-16 bg-gradient-to-b from-white to-gray-50">
@@ -131,4 +134,3 @@ const CategoryCarousel = () => {
 };
 
 export default CategoryCarousel;
-

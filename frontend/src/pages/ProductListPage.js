@@ -12,9 +12,16 @@ import {
 
 const ProductListPage = () => {
   const dispatch = useDispatch();
-  const { products, loading, pagination, error } = useSelector((state) => state.products);
-  const { categories } = useSelector((state) => state.categories);
-  const { brands } = useSelector((state) => state.brands);
+  const { loading, pagination, error } = useSelector((state) => state.products);
+  const products = useSelector((state) => (
+    Array.isArray(state.products?.products) ? state.products.products : []
+  ));
+  const categories = useSelector((state) => (
+    Array.isArray(state.categories?.categories) ? state.categories.categories : []
+  ));
+  const brands = useSelector((state) => (
+    Array.isArray(state.brands?.brands) ? state.brands.brands : []
+  ));
   const [searchParams, setSearchParams] = useSearchParams();
   const { categorySlug } = useParams();
 
@@ -41,8 +48,8 @@ const ProductListPage = () => {
   }, [currentPage, sortBy, sortOrder, categorySlug, searchParams]);
 
   useEffect(() => {
-    if (categories.length === 0) dispatch(fetchCategories());
-  }, [dispatch, categories.length]);
+    if ((categories || []).length === 0) dispatch(fetchCategories());
+  }, [dispatch, categories]);
 
   const loadProducts = () => {
     const params = {

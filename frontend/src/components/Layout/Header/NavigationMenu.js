@@ -3,12 +3,16 @@ import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchBrands } from '../../../redux/slices/brandSlice';
 import { fetchCategories } from '../../../redux/slices/categorySlice';
-import { API_BASE_URL } from '../../../utils/api';
+import { API_BASE_URL, fetchJson } from '../../../utils/api';
 
 const NavigationMenu = () => {
   const dispatch = useDispatch();
-  const { brands } = useSelector((state) => state.brands);
-  const { categories } = useSelector((state) => state.categories);
+  const brands = useSelector((state) => (
+    Array.isArray(state.brands?.brands) ? state.brands.brands : []
+  ));
+  const categories = useSelector((state) => (
+    Array.isArray(state.categories?.categories) ? state.categories.categories : []
+  ));
   const [premiumProducts, setPremiumProducts] = useState([]);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const closeTimeoutRef = useRef(null);
@@ -21,27 +25,36 @@ const NavigationMenu = () => {
     if (categories.length === 0) {
       dispatch(fetchCategories());
     }
-    
+  }, [dispatch, brands.length, categories.length]);
+
+  useEffect(() => {
     // Fetch top 6 most expensive products for Premium Watches menu
     const fetchPremiumProducts = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/products?sort=price&order=desc&limit=6`);
-        const data = await response.json();
-        if (data.success) {
-          setPremiumProducts(data.data.map(p => ({
-            name: p.name,
-            link: `/products/${p.id}`,
-            image: p.images?.[0],
-            price: p.price,
-            type: 'product'
-          })));
+        const data = await fetchJson(`${API_BASE_URL}/products?sort=price&order=desc&limit=6`);
+        const products = data?.data;
+        if (!Array.isArray(products)) {
+          throw new Error('Premium products response is missing an array in its data field.');
         }
-      } catch (err) {
-        console.error('Failed to fetch premium products:', err);
+
+        setPremiumProducts(products.map((product) => ({
+          name: product?.name || 'Watch',
+          link: `/products/${product?.id}`,
+          image: product?.images?.[0],
+          price: product?.price,
+          type: 'product'
+        })));
+      } catch (error) {
+        setPremiumProducts([]);
+        console.error(
+          'Failed to fetch premium products:',
+          `${error.message} Set REACT_APP_API_URL to the deployed backend URL ending in /api.`
+        );
       }
     };
+
     fetchPremiumProducts();
-  }, [dispatch, brands.length, categories.length]);
+  }, [dispatch]);
 
   // Handle menu hover with delay
   const handleMenuEnter = (menuKey) => {
@@ -73,17 +86,17 @@ const NavigationMenu = () => {
       'men': {
         title: 'MEN',
         link: '/products?category=mens-watches',
-        items: categories
-          .filter(c => c.slug?.includes('men'))
-          .map(c => ({ name: c.name, link: `/products?category=${c.slug}`, image: c.image })),
+        items: (categories || [])
+          .filter(c => c?.slug?.includes('men'))
+          .map(c => ({ name: c?.name, link: `/products?category=${c?.slug}`, image: c?.image })),
         type: 'category'
       },
       'women': {
         title: 'WOMEN',
         link: '/products?category=womens-watches',
-        items: categories
-          .filter(c => c.slug?.includes('women'))
-          .map(c => ({ name: c.name, link: `/products?category=${c.slug}`, image: c.image })),
+        items: (categories || [])
+          .filter(c => c?.slug?.includes('women'))
+          .map(c => ({ name: c?.name, link: `/products?category=${c?.slug}`, image: c?.image })),
         type: 'category'
       },
       'smart-watches': {
@@ -101,24 +114,24 @@ const NavigationMenu = () => {
       'watches': {
         title: 'WATCHES',
         link: '/products',
-        items: categories
-          .filter(c => true)
+        items: (categories || [])
+          .filter(Boolean)
           .slice(0, 10)
-          .map(c => ({ name: c.name, link: `/products?category=${c.slug}`, image: c.image })),
+          .map(c => ({ name: c?.name, link: `/products?category=${c?.slug}`, image: c?.image })),
         viewAllLink: '/products',
         type: 'category'
       },
       'international-brands': {
         title: 'INTERNATIONAL BRANDS',
         link: '/products?filter=international',
-        items: brands.slice(0, 9).map(b => ({ name: b.name, slug: b.slug, logo: b.logo, link: `/products?brand=${b.slug}` })),
+        items: (brands || []).slice(0, 9).map(b => ({ name: b?.name, slug: b?.slug, logo: b?.logo, link: `/products?brand=${b?.slug}` })),
         viewAllLink: '/products?filter=brand',
         type: 'brand'
       },
       'our-brands': {
         title: 'OUR BRANDS',
         link: '/products?filter=our-brands',
-        items: brands.slice(9, 15).map(b => ({ name: b.name, slug: b.slug, logo: b.logo, link: `/products?brand=${b.slug}` })),
+        items: (brands || []).slice(9, 15).map(b => ({ name: b?.name, slug: b?.slug, logo: b?.logo, link: `/products?brand=${b?.slug}` })),
         viewAllLink: '/products?filter=brand',
         type: 'brand'
       }

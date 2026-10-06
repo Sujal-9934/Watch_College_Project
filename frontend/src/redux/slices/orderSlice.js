@@ -126,7 +126,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload.data || [];
+        state.orders = Array.isArray(action.payload?.data) ? action.payload.data : [];
         state.pagination = action.payload.pagination || state.pagination;
         state.error = null;
       })

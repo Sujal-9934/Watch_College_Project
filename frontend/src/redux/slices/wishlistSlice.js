@@ -103,7 +103,7 @@ const wishlistSlice = createSlice({
       })
       .addCase(fetchWishlist.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.data || [];
+        state.items = Array.isArray(action.payload?.data) ? action.payload.data : [];
         state.isInitialized = true;
         state.error = null;
       })
