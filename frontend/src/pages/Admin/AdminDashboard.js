@@ -8,14 +8,10 @@ import {
   UserGroupIcon,
   CurrencyDollarIcon,
   CubeIcon,
-  ExclamationTriangleIcon,
   ArrowTrendingUpIcon,
-  PieChartIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -309,4 +305,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

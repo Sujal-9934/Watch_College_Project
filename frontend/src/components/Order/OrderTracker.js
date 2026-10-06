@@ -5,7 +5,6 @@ import {
   TruckIcon,
   MapPinIcon,
   XCircleIcon,
-  ArrowRightIcon,
 } from '@heroicons/react/24/solid';
 import {
   CheckCircleIcon as CheckCircleOutlineIcon,
@@ -373,4 +372,3 @@ const OrderTracker = ({ order }) => {
 };
 
 export default OrderTracker;
-

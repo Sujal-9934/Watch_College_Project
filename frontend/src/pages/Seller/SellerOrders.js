@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -13,15 +13,23 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 const SellerOrders = () => {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
-  const { orders, loading, error, pagination } = useSelector((state) => state.seller);
+  const { orders, loading, error } = useSelector((state) => state.seller);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('');
 
+  const loadOrders = useCallback(() => {
+    const params = { page: 1, limit: 50 };
+    if (searchTerm) params.search = searchTerm;
+    if (statusFilter) params.status = statusFilter;
+    if (paymentStatusFilter) params.payment_status = paymentStatusFilter;
+    dispatch(fetchSellerOrders(params));
+  }, [dispatch, searchTerm, statusFilter, paymentStatusFilter]);
+
   useEffect(() => {
     loadOrders();
-  }, [searchTerm, statusFilter, paymentStatusFilter]);
+  }, [loadOrders]);
 
   useEffect(() => {
     if (error) {
@@ -29,14 +37,6 @@ const SellerOrders = () => {
       dispatch(clearError());
     }
   }, [error, dispatch]);
-
-  const loadOrders = () => {
-    const params = { page: 1, limit: 50 };
-    if (searchTerm) params.search = searchTerm;
-    if (statusFilter) params.status = statusFilter;
-    if (paymentStatusFilter) params.payment_status = paymentStatusFilter;
-    dispatch(fetchSellerOrders(params));
-  };
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {

@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 export const fetchCategories = createAsyncThunk(
   'categories/fetchCategories',
@@ -48,4 +47,3 @@ const categorySlice = createSlice({
 
 export const { clearError } = categorySlice.actions;
 export default categorySlice.reducer;
-

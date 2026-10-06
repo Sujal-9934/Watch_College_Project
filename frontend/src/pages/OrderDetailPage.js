@@ -5,6 +5,7 @@ import { fetchOrder, cancelOrder } from '../redux/slices/orderSlice';
 import OrderTracker from '../components/Order/OrderTracker';
 import { MapPinIcon, CreditCardIcon, DocumentArrowDownIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 import toast from 'react-hot-toast';
 
 const OrderDetailPage = () => {
@@ -87,7 +88,6 @@ const OrderDetailPage = () => {
             <button
               onClick={async () => {
                 try {
-                  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
                   const token = localStorage.getItem('token');
                   const response = await axios.get(`${API_BASE_URL}/orders/${currentOrder.id}/receipt`, {
                     headers: {

@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchBrands } from '../../../redux/slices/brandSlice';
 import { fetchCategories } from '../../../redux/slices/categorySlice';
-import {
-  ChevronRightIcon,
-} from '@heroicons/react/24/outline';
+import { API_BASE_URL } from '../../../utils/api';
 
 const NavigationMenu = () => {
   const dispatch = useDispatch();
@@ -27,13 +25,12 @@ const NavigationMenu = () => {
     // Fetch top 6 most expensive products for Premium Watches menu
     const fetchPremiumProducts = async () => {
       try {
-        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-        const response = await fetch(`${API_URL}/products?sort=price&order=desc&limit=6`);
+        const response = await fetch(`${API_BASE_URL}/products?sort=price&order=desc&limit=6`);
         const data = await response.json();
         if (data.success) {
           setPremiumProducts(data.data.map(p => ({
             name: p.name,
-            link: `/product/${p.id}`,
+            link: `/products/${p.id}`,
             image: p.images?.[0],
             price: p.price,
             type: 'product'
@@ -130,7 +127,7 @@ const NavigationMenu = () => {
     const order = ['men', 'women', 'smart-watches', 'premium-watches', 'watches', 'international-brands', 'our-brands'];
 
     return { menuConfigs: configs, menuOrder: order };
-  }, [brands, categories]);
+  }, [brands, categories, premiumProducts]);
 
   const renderMenuContent = (menuKey) => {
     const config = menuConfigs[menuKey];
@@ -238,5 +235,3 @@ const NavigationMenu = () => {
 };
 
 export default NavigationMenu;
-
-

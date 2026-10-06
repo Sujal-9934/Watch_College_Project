@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, clearError } from '../redux/slices/authSlice';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../utils/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -22,8 +21,7 @@ const LoginPage = () => {
     password: '',
     otp: '',
   });
-
-  const from = location.state?.from?.pathname || '/';
+  const redirectPath = location.state?.from?.pathname || '/';
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -37,10 +35,10 @@ const LoginPage = () => {
       }
       // Regular users go to home page (/) after login
       else {
-        navigate('/', { replace: true });
+        navigate(redirectPath, { replace: true });
       }
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, redirectPath]);
 
   useEffect(() => {
     if (error) {

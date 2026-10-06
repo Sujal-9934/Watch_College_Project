@@ -6,7 +6,6 @@ import { fetchCategories } from '../redux/slices/categorySlice';
 import ProductCard from '../components/Product/ProductCard';
 import {
   MagnifyingGlassIcon,
-  FunnelIcon,
   Squares2X2Icon,
   ListBulletIcon,
 } from '@heroicons/react/24/outline';
@@ -33,7 +32,6 @@ const ProductListPage = () => {
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'created_at');
   const [sortOrder, setSortOrder] = useState(searchParams.get('order') || 'desc');
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(false);
 
   const currentPage = parseInt(searchParams.get('page')) || 1;
 

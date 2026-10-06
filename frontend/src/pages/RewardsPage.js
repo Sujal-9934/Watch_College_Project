@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { 
   GiftIcon, 
   SparklesIcon, 
@@ -14,7 +13,6 @@ import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
 
 const RewardsPage = () => {
-  const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState('overview');
 
   // Mock rewards data - Replace with actual API data
@@ -481,4 +479,3 @@ const RewardsPage = () => {
 };
 
 export default RewardsPage;
-

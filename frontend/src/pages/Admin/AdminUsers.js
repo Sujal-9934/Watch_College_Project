@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchAdminUsers,
@@ -7,11 +7,7 @@ import {
   clearError,
 } from '../../redux/slices/adminSlice';
 import toast from 'react-hot-toast';
-import {
-  PencilIcon,
-  TrashIcon,
-  MagnifyingGlassIcon,
-} from '@heroicons/react/24/outline';
+import { TrashIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const AdminUsers = () => {
   const dispatch = useDispatch();
@@ -20,18 +16,7 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
-  useEffect(() => {
-    loadUsers();
-  }, [searchTerm, roleFilter]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message || 'An error occurred');
-      dispatch(clearError());
-    }
-  }, [error, dispatch]);
-
-  const loadUsers = () => {
+  const loadUsers = useCallback(() => {
     const params = {
       page: 1,
       limit: 50,
@@ -39,7 +24,18 @@ const AdminUsers = () => {
     if (searchTerm) params.search = searchTerm;
     if (roleFilter) params.role = roleFilter;
     dispatch(fetchAdminUsers(params));
-  };
+  }, [dispatch, searchTerm, roleFilter]);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message || 'An error occurred');
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   const handleToggleActive = async (user) => {
     try {

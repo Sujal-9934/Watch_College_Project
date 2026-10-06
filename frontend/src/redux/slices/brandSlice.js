@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 export const fetchBrands = createAsyncThunk(
   'brands/fetchBrands',
@@ -48,4 +47,3 @@ const brandSlice = createSlice({
 
 export const { clearError } = brandSlice.actions;
 export default brandSlice.reducer;
-

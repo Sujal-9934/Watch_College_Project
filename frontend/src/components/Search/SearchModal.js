@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { setSearchModalOpen } from '../../redux/slices/uiSlice';
-import { searchProducts } from '../../redux/slices/productSlice';
 import { fetchBrands } from '../../redux/slices/brandSlice';
 import { fetchCategories } from '../../redux/slices/categorySlice';
 import { MagnifyingGlassIcon, XMarkIcon, ClockIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 const SearchModal = () => {
   const dispatch = useDispatch();
@@ -41,23 +39,7 @@ const SearchModal = () => {
     }
   }, [searchModalOpen, dispatch]);
 
-  // Debounced search
-  useEffect(() => {
-    if (!searchModalOpen) return;
-
-    const timeoutId = setTimeout(() => {
-      if (searchTerm.trim().length >= 2) {
-        performSearch(searchTerm.trim());
-      } else {
-        setSearchResults({ products: [], brands: [], categories: [] });
-        setShowResults(false);
-      }
-    }, 300); // 300ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, searchModalOpen]);
-
-  const performSearch = async (term) => {
+  const performSearch = useCallback(async (term) => {
     setLoading(true);
     setShowResults(true);
     setError(null);
@@ -111,7 +93,23 @@ const SearchModal = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [brands, categories]);
+
+  // Debounced search
+  useEffect(() => {
+    if (!searchModalOpen) return;
+
+    const timeoutId = setTimeout(() => {
+      if (searchTerm.trim().length >= 2) {
+        performSearch(searchTerm.trim());
+      } else {
+        setSearchResults({ products: [], brands: [], categories: [] });
+        setShowResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, searchModalOpen, performSearch]);
 
   const handleInputChange = (e) => {
     const value = e.target.value;

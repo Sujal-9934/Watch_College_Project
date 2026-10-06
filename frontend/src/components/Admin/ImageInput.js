@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { PhotoIcon, LinkIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -12,18 +11,6 @@ const getAuthHeaders = () => {
       Authorization: `Bearer ${token}`,
     },
   };
-};
-
-const isValidImageUrl = (str) => {
-  if (!str || typeof str !== 'string') return false;
-  const trimmed = str.trim();
-  if (!trimmed) return false;
-  try {
-    const url = new URL(trimmed);
-    return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch {
-    return false;
-  }
 };
 
 /**

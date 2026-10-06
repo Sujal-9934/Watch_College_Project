@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchFeaturedProducts } from '../redux/slices/productSlice';
 import CinematicHero from '../components/Home/CinematicHero';
-import HeroSection from '../components/Home/HeroSection';
 import FeaturedBrands from '../components/Home/FeaturedBrands';
 import CategoryCarousel from '../components/Home/CategoryCarousel';
 import MostLovedBrands from '../components/Home/MostLovedBrands';

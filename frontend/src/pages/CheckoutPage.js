@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchCart } from '../redux/slices/cartSlice';
 import { createOrder } from '../redux/slices/orderSlice';
 import { clearCart } from '../redux/slices/cartSlice';
-import { CreditCardIcon, BanknotesIcon, TruckIcon } from '@heroicons/react/24/outline';
+import { CreditCardIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import OrderSuccessModal from '../components/Checkout/OrderSuccessModal';
 

@@ -6,7 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const CinematicHero = () => {
   const dispatch = useDispatch();
-  const { sliders, loading } = useSelector((state) => state.homepage);
+  const { sliders } = useSelector((state) => state.homepage);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   const defaultSlides = [
@@ -166,4 +166,3 @@ const CinematicHero = () => {
 };
 
 export default CinematicHero;
-

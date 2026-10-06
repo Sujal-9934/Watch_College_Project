@@ -5,8 +5,7 @@ import { loginUser, clearError } from '../../redux/slices/authSlice';
 import { setAuthModalOpen, setAuthModalTab } from '../../redux/slices/uiSlice';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 const LoginForm = () => {
   const dispatch = useDispatch();

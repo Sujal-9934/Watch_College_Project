@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchOrders } from '../redux/slices/orderSlice';
-import { UserIcon, EnvelopeIcon, PhoneIcon, CalendarIcon, DocumentArrowDownIcon, TruckIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, PhoneIcon, CalendarIcon, DocumentArrowDownIcon, TruckIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
@@ -270,7 +271,6 @@ const ProfilePage = () => {
                     <button
                       onClick={async () => {
                         try {
-                          const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
                           const token = localStorage.getItem('token');
                           const response = await axios.get(`${API_BASE_URL}/orders/${order.id}/receipt`, {
                             headers: {
